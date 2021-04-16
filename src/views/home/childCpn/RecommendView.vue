@@ -26,7 +26,7 @@ export default {
 <style scoped>
   .recommends {
     display: flex;
-    font-size: 12px;
+    font-size: 14px;
     text-align: center;
     padding: 15px 0 30px 0;
     border-bottom: 15px solid #eee;
