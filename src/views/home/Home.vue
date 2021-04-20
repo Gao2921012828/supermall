@@ -1,17 +1,28 @@
 <!--  -->
 <template>
   <div id="home">
+    <!-- 顶部标题 -->
     <nav-bar class="home-nav">
       <div slot="center">购物街</div>
     </nav-bar>
-    <!--轮播图 父组件给子组件传递数据 -->
-    <home-swiper :banners="banners"/>
-    <recommend-view :recommends="recommends"/>
-    <feature-view/>
-    <tab-control class="tab-control" 
-                 :titles="titles"
-                 @tab-click="selectClick"/>
-    <goods-list :list="showGoods"/>
+    <!-- 定义res 为了父组件直接获取子组件对象 -->
+    <scroll class="content" 
+            ref="scroll" 
+            :pull-up-load="true"
+            @pullUpLoadMore="loadMore"
+            :probe-type="3" 
+            @scrollPos="scrollBackTop">
+      <!--轮播图 父组件给子组件传递数据 -->
+      <home-swiper :banners="banners"/>
+      <recommend-view :recommends="recommends"/>
+      <feature-view/>
+      <tab-control class="tab-control" 
+                  :titles="titles"
+                  @tab-click="selectClick"/>
+      <goods-list :list="showGoods"/>
+    </scroll>
+    <!-- backTop -->
+    <back-top @click.native="backClick" v-show="isShowBckTop"/>
     <ul>
       <li>111</li>
       <li>112</li>
@@ -72,14 +83,14 @@
 import NavBar from 'components/common/navbar/NavBar'
 import TabControl from 'components/content/tabControl/TabControl'
 import GoodsList from 'components/content/goods/GoodsList'
+import Scroll from 'components/common/scroll/Scroll'
+import BackTop from 'components/content/backTop/BackTop'
 
 import HomeSwiper from './childCpn/HomeSwiper'
 import RecommendView from './childCpn/RecommendView'
 import FeatureView from './childCpn/FeatureView.vue'
 
 import {getHomeMultidata,getHomeGoods} from 'network/home'
-
-
 
 
 export default {
@@ -90,7 +101,9 @@ export default {
     GoodsList,
     HomeSwiper,
     RecommendView,
-    FeatureView
+    FeatureView,
+    Scroll,
+    BackTop
   },
   data() {
     return {
@@ -102,12 +115,14 @@ export default {
         'new': {page: 0, list: []},
         'sell': {page: 0, list: []}
       },
-      currentType: 'pop' 
+      currentType: 'pop',
+      isShowBckTop: false,
     }
   },
   created() {
     //调用请求数据的方法
     this.getHomeMultidataMethod()
+    
     this.getHomeGoodsMethod('pop')
     this.getHomeGoodsMethod('new')
     this.getHomeGoodsMethod('sell')
@@ -124,6 +139,17 @@ export default {
     selectClick(index) {
       // 获取对象的属性名  Object.keys(对象)[索引值]
       this.currentType = Object.keys(this.goods)[index]
+    },
+    loadMore() {
+      this.getHomeGoodsMethod(this.currentType)
+      console.log("上拉加载更多");
+    },
+    backClick() {
+      //通过ref 拿取到Scroll组件对象
+      this.$refs.scroll.cpnScrollTo(0, 0 ,500)
+    },
+    scrollBackTop(position) {
+      this.isShowBckTop = -(position.y) > 1000
     },
     /**
      * 网络请求方法
@@ -145,8 +171,10 @@ export default {
         //将请求道的数据追加到定义好的空list数组中
         this.goods[type].list.push(...res.data.list)
         //当前页的数据请求后需要将默认页面 +1 
-        this.goods[type].page = page + 1
+        this.goods[type].page = page
         // console.log(res);
+        //解决只能进行一次上拉加载更多的情况
+        this.$refs.scroll.finishPullUp()
       })
     }
   },
@@ -156,6 +184,8 @@ export default {
 <style scoped>
   #home {
     padding-top: 44px;
+    height: 100vh;
+    position: relative;
   }
   .home-nav {
     position: fixed;
@@ -167,9 +197,13 @@ export default {
     color: #fff;
     font-size: 23px;
   }
-  .tab-control {
-    position: sticky;
+  /* BScroll滚动样式 */
+  .content {
+    overflow: hidden;
+    position: absolute;
     top: 44px;
-    z-index: 10;
+    bottom: 49px;
+    left: 0;
+    right: 0;
   }
 </style>
