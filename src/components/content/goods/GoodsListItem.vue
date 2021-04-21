@@ -1,5 +1,5 @@
 <template>
-  <div class="list-item">
+  <div class="list-item" @click="itemClick">
     <img :src="listItem.show.img" alt="">
     <div class="goods-info">
       <p>{{listItem.title}}</p>
@@ -19,7 +19,13 @@ export default {
          return {}
        }
      }
-   }
+   },
+   methods: {
+     itemClick() {
+       //路由跳转 可返回
+       this.$router.push('/detail/' + this.listItem.iid)
+     }
+   },
 }
 
 </script>

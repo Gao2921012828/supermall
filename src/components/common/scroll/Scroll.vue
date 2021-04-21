@@ -57,6 +57,9 @@ export default {
      },
      finishPullUp() {
        this.scroll.finishPullUp()
+     },
+     getSaveY() {
+       return this.scroll ? this.scroll.y : 0
      }
    },
 }
