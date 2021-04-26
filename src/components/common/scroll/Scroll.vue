@@ -40,7 +40,7 @@ export default {
       //不是每个组件都需要 动态设置
       probeType: this.probeType,
       //上拉加载更多
-      pullUpLoad: this.pullUpLoad
+      pullUpLoad: this.pullUpLoad,
     })
     //2.监听滚动的位置
     this.scroll.on('scroll',(position) => {

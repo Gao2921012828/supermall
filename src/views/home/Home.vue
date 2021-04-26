@@ -145,7 +145,7 @@ export default {
   deactivated() {
     //组件处于不活跃状态时 保存当前的位置
     this.saveY = this.$refs.scroll.getSaveY()
-    console.log(this.saveY);
+    // console.log(this.saveY);
   },
   mounted() {
      
