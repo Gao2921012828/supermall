@@ -7,6 +7,8 @@
       <detail-shop-info :shop="shop"/>
       <detail-goods-info :detailInfo="detailInfo" @imageLoad="imageLoad"/>
       <detail-param-info :paramInfo="paramInfo"/>
+      <detail-comment-info :commentInfo="commentInfo"/>
+      <goods-list :list="recommends"/>
     </scroll>
     
   </div>
@@ -19,10 +21,13 @@ import DetailBaseInfo from './childCpn/DetailBaseInfo'
 import DetailShopInfo from './childCpn/DetailShopInfo'
 import DetailGoodsInfo from './childCpn/DetailGoodsInfo.vue'
 import DetailParamInfo from './childCpn/DetailParamInfo.vue'
+import DetailCommentInfo from './childCpn/DetailCommentInfo'
 
-import {getDetail,Goods,Shop,GoodsParam} from 'network/detail'
+import {getDetail,Goods,Shop,GoodsParam,getRecommend} from 'network/detail'
 
 import Scroll from 'components/common/scroll/Scroll'
+import GoodsList from 'components/content/goods/GoodsList.vue'
+
 
 
 
@@ -37,7 +42,9 @@ export default {
      DetailShopInfo,
      Scroll,
      DetailGoodsInfo,
-     DetailParamInfo
+     DetailParamInfo,
+     DetailCommentInfo,
+     GoodsList
    },
    data() {
      return {
@@ -45,8 +52,10 @@ export default {
        topImages: [],
        goods: {},
        shop: {},
-       detailInfo:{},
-       paramInfo:{}
+       detailInfo: {},
+       paramInfo: {},
+       commentInfo: {},
+       recommends: []
      }
    },
    methods: {
@@ -60,18 +69,27 @@ export default {
      this.iid = this.$route.params.id
      //2.根据iid数据请求
      getDetail(this.iid).then(res => {
-       console.log(res);
+      //  console.log(res);
        const data = res.result
        this.topImages = data.itemInfo.topImages
 
-      //3.获取商品信息
+      //2.1.获取商品信息
        this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
-      //4.获取店铺信息
+      //2.2.获取店铺信息
        this.shop= new Shop(data.shopInfo)
-      //5.获取详情图片信息
+      //2.3.获取详情图片信息
        this.detailInfo = data.detailInfo
-      //6.获取商品参数
+      //2.4.获取商品参数
       this.paramInfo = new GoodsParam(data.itemParams.info,data.itemParams.rule)
+      //2.5.获取商品评论
+      if (data.rate.cRate !=0) {
+        this.commentInfo = data.rate.list[0]
+      }   
+     })
+     //3.获取推荐数据
+     getRecommend().then(res => {
+       console.log(res)
+       this.recommends = res.data.list
      })
    },
 }
