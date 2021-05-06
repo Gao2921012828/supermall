@@ -38,7 +38,7 @@
     },
     watch: {
       detailInfo() {
-        this.imagesLength == this.detailInfo.detailImage[0].list.length
+        this.imagesLength = this.detailInfo.detailImage[0].list.length
       }
     }
 	}

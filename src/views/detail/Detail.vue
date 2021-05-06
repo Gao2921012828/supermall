@@ -1,16 +1,17 @@
 <template>
   <div id="detail">
-    <detail-nav-bar class="detail-nav-bar"/>
-    <scroll class="content" :pull-up-load="true" ref="scroll">
+    <detail-nav-bar class="detail-nav-bar" @titleClick="titleClick" ref="nav"/>
+    <scroll class="content" :pull-up-load="true" ref="scroll" @scrollPos="detailPosition" :probe-type="3">
       <detail-swiper :top-images="topImages"/>
       <detail-base-info :goods="goods"/>
       <detail-shop-info :shop="shop"/>
       <detail-goods-info :detailInfo="detailInfo" @imageLoad="imageLoad"/>
-      <detail-param-info :paramInfo="paramInfo"/>
-      <detail-comment-info :commentInfo="commentInfo"/>
-      <goods-list :list="recommends"/>
+      <detail-param-info :paramInfo="paramInfo" ref="param"/>
+      <detail-comment-info :commentInfo="commentInfo" ref="comment"/>
+      <goods-list :list="recommends" ref="recommends"/>
     </scroll>
-    
+    <detail-bottom @addToCart="addCart"/>
+    <back-top v-show="isShowBckTop" @click.native="backClick"/>
   </div>
 </template>
 
@@ -22,14 +23,14 @@ import DetailShopInfo from './childCpn/DetailShopInfo'
 import DetailGoodsInfo from './childCpn/DetailGoodsInfo.vue'
 import DetailParamInfo from './childCpn/DetailParamInfo.vue'
 import DetailCommentInfo from './childCpn/DetailCommentInfo'
+import DetailBottom from './childCpn/DetailBottom.vue'
 
 import {getDetail,Goods,Shop,GoodsParam,getRecommend} from 'network/detail'
 
 import Scroll from 'components/common/scroll/Scroll'
 import GoodsList from 'components/content/goods/GoodsList.vue'
-
-
-
+import { backTopMixin } from 'common/mixin'
+// import BackTop from 'components/content/backTop/BackTop.vue'
 
 
 
@@ -44,7 +45,10 @@ export default {
      DetailGoodsInfo,
      DetailParamInfo,
      DetailCommentInfo,
-     GoodsList
+     GoodsList,
+     DetailBottom,
+     //应用mixin混入 抽取
+    //  BackTop
    },
    data() {
      return {
@@ -55,13 +59,57 @@ export default {
        detailInfo: {},
        paramInfo: {},
        commentInfo: {},
-       recommends: []
+       recommends: [],
+       detailTopYs: [],
+       currentIndex: 0,
+       //应用mixin混入 抽取
+      //  isShowBckTop: false,
      }
    },
+   mixins: [backTopMixin],
    methods: {
      imageLoad() {
        this.$refs.scroll.refresh()
+      //每次图片加载完成后回调
+       this.detailTopYs = []
+       this.detailTopYs.push(0)
+       this.detailTopYs.push(this.$refs.param.$el.offsetTop)
+       this.detailTopYs.push(this.$refs.comment.$el.offsetTop)
+       this.detailTopYs.push(this.$refs.recommends.$el.offsetTop)
+       //用于联动效果
+       this.detailTopYs.push(Number.MAX_VALUE)
+     },
+     titleClick(index) {
+      //在scroll多scrollTo进行封装了方法名为cpnScrollTo
+      this.$refs.scroll.cpnScrollTo(0,-(this.detailTopYs[index]-44),200)  
+     },
+     detailPosition(position) {
+      const positionY = -position.y + 44
+      for(let i=0; i<this.detailTopYs.length -1; i++) {
+        if(this.currentIndex!==i && (positionY >= this.detailTopYs[i] && positionY < this.detailTopYs[i+1])) {
+          this.currentIndex = i 
+          this.$refs.nav.currentIndex = this.currentIndex
+        }
+      }
+      //监听滚动
+      this.isShowBckTop = -(position.y) > 1000
+     },
+     addCart() { 
+       //1.获取购物车需要的数据
+       const product = {}
+       product.image = this.topImages[0];
+       product.title = this.goods.title;
+       product.desc = this.goods.desc;
+       product.price = this.goods.realPrice;
+       product.iid = this.iid
+  console.log(product);
      }
+     //应用mixin混入 抽取
+    //  backClick() {
+    //     //通过ref 拿取到Scroll组件对象
+    //   this.$refs.scroll.cpnScrollTo(0, 0 ,500)
+    //  }
+
    },
    created() {
      //1.获取iid
@@ -69,7 +117,7 @@ export default {
      this.iid = this.$route.params.id
      //2.根据iid数据请求
      getDetail(this.iid).then(res => {
-      //  console.log(res);
+       console.log(res);
        const data = res.result
        this.topImages = data.itemInfo.topImages
 
@@ -88,7 +136,7 @@ export default {
      })
      //3.获取推荐数据
      getRecommend().then(res => {
-       console.log(res)
+      //  console.log(res)
        this.recommends = res.data.list
      })
    },
@@ -103,7 +151,7 @@ export default {
     height: 100vh;
   }
   .content {
-    height: calc(100% - 44px);
+    height: calc(100% - 44px - 49px);
     overflow: hidden;
   }
 </style>

@@ -28,58 +28,6 @@
     </scroll>
     <!-- backTop -->
     <back-top @click.native="backClick" v-show="isShowBckTop"/>
-    <ul>
-      <li>111</li>
-      <li>112</li>
-      <li>113</li>
-      <li>114</li>
-      <li>115</li>
-      <li>116</li>
-      <li>117</li>
-      <li>118</li>
-      <li>119</li>
-      <li>1110</li>
-      <li>111</li>
-      <li>112</li>
-      <li>113</li>
-      <li>114</li>
-      <li>115</li>
-      <li>116</li>
-      <li>117</li>
-      <li>118</li>
-      <li>119</li>
-      <li>1110</li>
-      <li>111</li>
-      <li>112</li>
-      <li>113</li>
-      <li>114</li>
-      <li>115</li>
-      <li>116</li>
-      <li>117</li>
-      <li>118</li>
-      <li>119</li>
-      <li>1110</li>
-      <li>111</li>
-      <li>112</li>
-      <li>113</li>
-      <li>114</li>
-      <li>115</li>
-      <li>116</li>
-      <li>117</li>
-      <li>118</li>
-      <li>119</li>
-      <li>1110</li>
-      <li>111</li>
-      <li>112</li>
-      <li>113</li>
-      <li>114</li>
-      <li>115</li>
-      <li>116</li>
-      <li>117</li>
-      <li>118</li>
-      <li>119</li>
-      <li>1110</li>
-    </ul>
   </div>
 </template>
 
@@ -96,7 +44,7 @@ import RecommendView from './childCpn/RecommendView'
 import FeatureView from './childCpn/FeatureView.vue'
 
 import {getHomeMultidata,getHomeGoods} from 'network/home'
-
+import {backTopMixin} from 'common/mixin'
 
 export default {
   name: 'Home',
@@ -108,8 +56,9 @@ export default {
     RecommendView,
     FeatureView,
     Scroll,
-    BackTop
+    // BackTop
   },
+  mixins: [backTopMixin],
   data() {
     return {
       banners:[],
@@ -121,7 +70,7 @@ export default {
         'sell': {page: 0, list: []}
       },
       currentType: 'pop',
-      isShowBckTop: false,
+      // isShowBckTop: false,
       tabOffsetTop: 0,
       isFixed: false,
       saveY: 0
@@ -140,7 +89,7 @@ export default {
     //再次处于活跃时 设置scroll的位置
     this.$refs.scroll.cpnScrollTo(0, this.saveY , 0)
     //再次处于活跃时 需要进行一次刷新
-    this.$refs.scroll.scroll.refresh()
+    this.$refs.scroll.refresh()
   },
   deactivated() {
     //组件处于不活跃状态时 保存当前的位置
@@ -169,10 +118,10 @@ export default {
     loadMore() {
       this.getHomeGoodsMethod(this.currentType)
     },
-    backClick() {
-      //通过ref 拿取到Scroll组件对象
-      this.$refs.scroll.cpnScrollTo(0, 0 ,500)
-    },
+    // backClick() {
+    //   //通过ref 拿取到Scroll组件对象
+    //   this.$refs.scroll.cpnScrollTo(0, 0 ,500)
+    // },
     scrollBackTop(position) {
       //监听滚动
       this.isShowBckTop = -(position.y) > 1000

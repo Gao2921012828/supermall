@@ -60,6 +60,9 @@ export default {
      },
      getSaveY() {
        return this.scroll ? this.scroll.y : 0
+     },
+     refresh() {
+       this.scroll.refresh()
      }
    },
 }
