@@ -32,7 +32,7 @@ import GoodsList from 'components/content/goods/GoodsList.vue'
 import { backTopMixin } from 'common/mixin'
 // import BackTop from 'components/content/backTop/BackTop.vue'
 
-
+import {mapActions} from 'vuex'
 
 export default {
    name: 'Detail',
@@ -94,6 +94,8 @@ export default {
       //监听滚动
       this.isShowBckTop = -(position.y) > 1000
      },
+     //映射actions
+     ...mapActions(['addCartList']),
      addCart() { 
        //1.获取购物车需要的数据
        const product = {}
@@ -102,7 +104,17 @@ export default {
        product.desc = this.goods.desc;
        product.price = this.goods.realPrice;
        product.iid = this.iid
-  console.log(product);
+
+       // 2.加入到购物车
+       //mutations的提交方式
+       //this.$store.commit('addCartList', product)
+       //actions的提交方式  
+      //  this.$store.dispatch('addCartList', product).then(res => {
+      //    console.log(res);
+      //  })
+      this.addCartList(product).then(res => {
+         console.log(res);
+      })
      }
      //应用mixin混入 抽取
     //  backClick() {
@@ -117,7 +129,7 @@ export default {
      this.iid = this.$route.params.id
      //2.根据iid数据请求
      getDetail(this.iid).then(res => {
-       console.log(res);
+      //  console.log(res);
        const data = res.result
        this.topImages = data.itemInfo.topImages
 
